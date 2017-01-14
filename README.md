@@ -36,11 +36,7 @@ model.add(Flatten())
 model.add(Dense(output_dim=NUM_GENRES, activation='softmax'))
 ```
 
-Finally, we need to configure the learning process of the model, using `.compile`. Here we choose to use the [Adam](https://arxiv.org/abs/1412.6980) optimizer because...
-
-> justify optimizer/loss function choices
-
-We would like to see the model accuracy after each batch, so we add `metrics=['accuracy']`.
+Finally, we need to configure the learning process of the model, using `.compile`. Here we choose to use the [Adam](https://arxiv.org/abs/1412.6980) optimizer (`optimizer='adam'`) and categorical cross-entropy loss function (`loss='categorical_crossentropy'`) because these options are considered to be the current state-of-the-art for this kind of problem. We would like to see the model accuracy after each batch, so we add `metrics=['accuracy']`.
 
 ```python
 model.compile(optimizer='adam', loss='categorical_crossentropy',
