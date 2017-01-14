@@ -2,7 +2,22 @@
 
 ## Generating and inverting the spectrograms
 
-We generate spectograms with Short-time Fourier Transform (STFT) and processing it as `S = log(1 + |STFT(x)|)` where `x` is the signal and `S` is the spectogram. This gives us, essentially, the intensity of various frequencies at different time points. To invert the spectograms, we use the [Griffin-Lim algorithm](http://cbcl.mit.edu/publications/ps/signalrec_ICSLP06.pdf) which iteratively estimates the phase information that was lost by taking magnitude for the spectogram.
+We generate spectograms with Short-time Fourier Transform (STFT) and processing it as `S = log(1 + |STFT(x)|)` where `x` is the signal and `S` is the spectogram. This gives us, essentially, the intensity of various frequencies at different time points. This is done with librosa as follows.
+```python
+x, sr = librosa.load(audio_file)
+D = librosa.stft(x)
+S = np.log1p(np.abs(D))
+```
+
+To invert the spectograms, we use the [Griffin-Lim algorithm](http://cbcl.mit.edu/publications/ps/signalrec_ICSLP06.pdf) which iteratively estimates the phase information that was lost by taking magnitude for the spectogram.
+```python
+x = np.exp(S) - 1
+p = 2 * np.pi * np.random.random_sample(x.shape) - np.pi # Start with a random estimate
+for i in range(500): # Do 500 iterations
+	Q = x * np.exp(1j*p) # Estimate the full STFT using the magnitude and the phase estimate
+	y = librosa.istft(Q) + 1e-6 # invert the STFT
+	p = np.angle(librosa.stft(y)) # Improve the phase estimate using the new signal
+```
 
 To generate our dataset, we generate spectograms from multiple 5 second samples from each audio file.
 
