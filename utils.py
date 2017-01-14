@@ -3,6 +3,7 @@ from glob import glob
 import librosa
 import theano
 import numpy as np
+import os
 
 from tqdm import tqdm
 
@@ -33,7 +34,7 @@ def get_spectogram_samples(audio_file, sample_len_secs, n_samples):
 def load_dataset(root_path, sample_len_secs, n_samples_per_file):
     Xs, ys = [], []
     for i, genre in enumerate(GENRES):
-        for audio_file in tqdm(list(glob(os.path.join(root_path, genre, "*.au")), ncols=80, ascii=False, desc="Loading {} files".format(genre))):
+        for audio_file in tqdm(list(glob(os.path.join(root_path, genre, "*.au"))), ncols=80, ascii=False, desc="Loading {} files".format(genre)):
             Xs.extend(get_spectogram_samples(
                 audio_file, sample_len_secs, n_samples_per_file))
             ys.extend([i for _ in range(n_samples_per_file)])
