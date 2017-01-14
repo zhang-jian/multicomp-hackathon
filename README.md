@@ -1,6 +1,10 @@
 # multicomp-hackathon
 
-## Generating the spectrograms
+## Generating and inverting the spectrograms
+
+We generate spectograms with Short-time Fourier Transform (STFT) and processing it as `S = log(1 + |STFT(x)|)` where `x` is the signal and `S` is the spectogram. This gives us, essentially, the intensity of various frequencies at different time points. To invert the spectograms, we use the [Griffin-Lim algorithm](http://cbcl.mit.edu/publications/ps/signalrec_ICSLP06.pdf) which iteratively estimates the phase information that was lost by taking magnitude for the spectogram.
+
+To generate our dataset, we generate spectograms from multiple 5 second samples from each audio file.
 
 ## The classification model
 
