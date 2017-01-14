@@ -50,8 +50,6 @@ To generate our dataset, we generate spectrograms from multiple 5 second samples
 
 For building the classification model, we use [Keras](http://keras.io), with [Theano](http://deeplearning.net/software/theano/) as a back-end.
 
-...
-
 We first initialize a `Sequential` model object, since our classification model consists of a simple linear stack of layers.
 
 ```python
