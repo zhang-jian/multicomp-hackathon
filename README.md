@@ -103,7 +103,14 @@ history = model.fit(x=x, y=to_categorical(y), batch_size=32, nb_epoch=10,
                     verbose=1, validation_split=0.2, shuffle=True)
 ```
 
+Using this method we were able to reach 64% accuracy on a 10-way music genre classification.
+
 ### Single-channel method 
 
 As input we used a `257 x 257` spectrogram 
+
+TODO the exact architecture
+
+Using this method we were able to reach 72% accuracy on a 10-way music genre classification.
+
 
