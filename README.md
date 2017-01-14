@@ -22,13 +22,7 @@ Fortunately for us converting an audio segment to a spectrogram is a "semi-inver
 
 In order to capture style/genre we need a representation that captures such information. If we build a neural network based classifier to predict musical genre we can arrive at such a representation that clusters similar genres close together.
 
-## Dataset
-
-As one of the building blocks of our approach we need a music genre classifier. In order to build it we use the common dataset for the task - [GTZAN Genre Collection](http://marsyasweb.appspot.com/download/data_sets/)
-
-GRZAN contains a 1000 audio tracks each 30 seconds long. It contains 10 genres, each represented by 100 tracks.
-
-## Generating and inverting the spectrograms
+### Generating and inverting the spectrograms
 
 We generate spectrograms with Short-time Fourier Transform (STFT) and processing it as `S = log(1 + |STFT(x)|)` where `x` is the signal and `S` is the spectrogram. This gives us, essentially, the intensity of various frequencies at different time points. This is done with librosa as follows.
 ```python
@@ -48,6 +42,14 @@ for i in range(500): # Do 500 iterations
 ```
 
 To generate our dataset, we generate spectrograms from multiple 5 second samples from each audio file.
+
+
+## Dataset
+
+As one of the building blocks of our approach we need a music genre classifier. In order to build it we use the common dataset for the task - [GTZAN Genre Collection](http://marsyasweb.appspot.com/download/data_sets/)
+
+GRZAN contains a 1000 audio tracks each 30 seconds long. It contains 10 genres, each represented by 100 tracks.
+
 
 ## The classification model
 
