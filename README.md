@@ -14,8 +14,8 @@ TODO sample image and a bit more explanation
 
 We believe that musical style and content can be captured by different representations of a musical piece. 
 
-For capturing content we choose to use spectrograms, an audio representation reliant on the Fourier Transform of the audio signal, and example of a spectrogram with an audio signal that resulted in it:
-![Spectrogram example](http://oyro.no/fig/spektrum.png)
+For capturing content we choose to use spectrograms, an audio representation reliant on the Fourier Transform of the audio signal, an example of a spectrogram of two 3 second audio clips is below:
+![Spectrogram example](https://github.com/jayanthkoushik/multicomp-hackathon/blob/master/images/sample_spectrograms.png)
 
 Fortunately, for us it is also an "semi-invertible" operation which allows us to manipulate the spectrogram directly and still be able to generate an audio file from it.
 
