@@ -11,10 +11,10 @@ S = np.log1p(np.abs(D)) # Take the magnitude with abs (call it Z) and return log
 
 To invert the spectograms, we use the [Griffin-Lim algorithm](http://cbcl.mit.edu/publications/ps/signalrec_ICSLP06.pdf) which iteratively estimates the phase information that was lost by taking magnitude for the spectogram.
 ```python
-x = np.exp(S) - 1
+D = np.exp(S) - 1
 p = 2 * np.pi * np.random.random_sample(x.shape) - np.pi # Start with a random estimate
 for i in range(500): # Do 500 iterations
-	Q = x * np.exp(1j*p) # Estimate the full STFT using the magnitude and the phase estimate
+	Q = D * np.exp(1j*p) # Estimate the full STFT using the magnitude and the phase estimate
 	y = librosa.istft(Q) + 1e-6 # invert the STFT
 	p = np.angle(librosa.stft(y)) # Improve the phase estimate using the new signal
 ```
