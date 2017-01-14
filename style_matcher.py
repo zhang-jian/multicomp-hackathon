@@ -32,6 +32,7 @@ def get_adam_updates(f, params, lr=1e-3, b1=0.9, b2=0.999, e=1e-8, dec=5e-3, nor
     return m_us + v_us + param_us + [t_u]
 
 NUM_SECONDS = 3
+NUM_SAMPLES = 5
 NUM_CHANNELS = 1025
 NUM_GENRES = 10
 
@@ -40,16 +41,19 @@ OPTIMIZATION_ITERATIONS = 1000
 
 LAMBDA = 1.
 
-MODEL_FN = 'model.h5'
-
-NUM_TIMEPOINTS = int(math.ceil(43.1 * NUM_SECONDS))
-
 # add commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--content', type=str, required=True)
 parser.add_argument('--style', type=str, required=True)
+parser.add_argument('--lambdav', type=float, required=True)
 parser.add_argument('--output', type=str, required=True)
 args = parser.parse_args()
+
+LAMBDA = args.lambdav
+
+MODEL_FN = 'models/{}s_{}_model.h5'.format(NUM_SECONDS, NUM_SAMPLES)
+print("Loading {}...".format(MODEL_FN))
+NUM_TIMEPOINTS = int(math.ceil(43.1 * NUM_SECONDS))
 
 # load content and style spectrogram
 input_content_S = load_audio_get_spectrogram(
