@@ -42,7 +42,7 @@ def load_dataset(root_path, sample_len_secs, n_samples_per_file):
                 audio_file, sample_len_secs, n_samples_per_file))
             ys.extend([i for _ in range(n_samples_per_file)])
     X, y = np.stack(Xs), np.stack(ys)
-    joblib.dump([X, y], os.path.join("processed_data", "xy_{}s_{}.pkl".format(sample_len_secs, n_samples_per_file)))
+    joblib.dump([X, y], os.path.join("processed_data", "xy_{}s_{}_img.pkl".format(sample_len_secs, n_samples_per_file)))
     return X, y
 
 
