@@ -115,8 +115,8 @@ input_style_features = get_style_features(
 style_loss = T.sum(T.square(style_features_S - input_style_features))
 content_loss = T.sum(
     T.square(S_pca - input_content_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS)))
-# total_loss = content_loss + LAMBDA * style_loss
-total_loss = style_loss
+total_loss = content_loss + LAMBDA * style_loss
+# total_loss = style_loss
 
 optim_step = theano.function(
     [], total_loss, updates=get_adam_updates(total_loss, [S]))
@@ -138,4 +138,5 @@ convert_spectrogram_and_save(output_S, args.output)
 
 output_style_features = get_style_features(
     output_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS))
-joblib.dump(output_style_features, args.output[:-4] + '.pkl')
+joblib.dump((input_style_features, output_style_features),
+            args.output[:-4] + '.pkl')
