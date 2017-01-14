@@ -53,7 +53,9 @@ To generate our dataset, we generate spectrograms from multiple 5 second samples
 
 For building the genre classification model, we use [Keras](http://keras.io), with [Theano](http://deeplearning.net/software/theano/) as a back-end.
 
-We explored the use of two classification models based on Convolutional Neural Networks, the first one treaded the spectrogram as a n-channel image with d x 1 dimensions, where n is the number of frequency channels and d is the number of timesteps. The second treating the spectrogram as a n x d image. In our experiments, detailed below we found the latter to lead to better genre classification performance.
+We explored the use of two classification models based on Convolutional Neural Networks, the first one treaded the spectrogram as a `n`-channel image with `d x 1` dimensions, where n is the number of frequency channels and `d` is the number of timesteps. The second treating the spectrogram as a single channel `n x d` image. In our experiments, detailed below we found the latter to led to better genre classification performance.
+
+### Multi-channel method 
 
 ...
 
@@ -98,3 +100,8 @@ Now we've finally finished constructing the model; it's time to start training. 
 history = model.fit(x=x, y=to_categorical(y), batch_size=32, nb_epoch=10,
                     verbose=1, validation_split=0.2, shuffle=True)
 ```
+
+### Single-channel method 
+
+As input we used a `257 x 257` spectrogram 
+
