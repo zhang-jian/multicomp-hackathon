@@ -12,22 +12,23 @@ floatX = theano.config.floatX
 GENRES = ["blues", "classical", "country", "disco",
           "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 SR = 22050
+N_FFT = 256
 
 
 def load_audio_get_spectrogram(audio_file, offset=0.0, duration=None):
     x, sr = librosa.load(audio_file, offset=offset,
                          duration=duration, dtype=floatX, sr=SR)
-    D = librosa.stft(x)
+    D = librosa.stft(x, n_fft=N_FFT)
     S = np.log1p(np.abs(D)).astype(floatX)
     return S
 
 
 def get_spectrogram_samples(audio_file, sample_len_secs, n_samples):
-    x, sr = librosa.load(audio_file, dtype=floatX)
+    x, sr = librosa.load(audio_file, dtype=floatX, sr=SR)
     sample_len_frames = sr * sample_len_secs
     sample_frames = [x[i:i + sample_len_frames]
                      for i in [np.random.randint(0, len(x) - sample_len_frames) for _ in range(n_samples)]]
-    sample_Ds = [librosa.stft(s) for s in sample_frames]
+    sample_Ds = [librosa.stft(s, n_fft=N_FFT) for s in sample_frames]
     sample_Ss = [np.log1p(np.abs(D)).astype(floatX) for D in sample_Ds]
     sample_Ss = [S.reshape(S.shape[0], 1, S.shape[1]) for S in sample_Ss]
     return np.stack(sample_Ss)
@@ -50,7 +51,7 @@ def convert_spectrogram_and_save(S, output_file):
     p = 2 * np.pi * np.random.random_sample(x.shape) - np.pi
     for i in trange(500, desc="Inverting spectrogram", ncols=80):
         Q = x * np.exp(1j*p)
-        y = librosa.istft(Q) + 1e-6
-        p = np.angle(librosa.stft(y))
+        y = librosa.istft(Q) + 1e-5
+        p = np.angle(librosa.stft(y, n_fft=N_FFT))
     librosa.output.write_wav(output_file, y, SR)
 
