@@ -16,7 +16,9 @@ We believe that musical style and content can be captured by different represent
 For capturing content we choose to use spectrograms, an audio representation reliant on the Fourier Transform of the audio signal, an example of a spectrogram of two 3 second audio clips is below:
 ![Spectrogram example](https://github.com/jayanthkoushik/multicomp-hackathon/blob/master/images/sample_spectrograms.png)
 
-Fortunately, for us it is also an "semi-invertible" operation which allows us to manipulate the spectrogram directly and still be able to generate an audio file from it.
+We can clearly see that the spectrograms of both classical clips are more similar to each other than to the rock clip. This makes us hopeful about our ability to transfer style in the spectrogram space.
+
+Fortunately for us converting an audio segment to a spectrogram is a "semi-invertible" operation which allows us to manipulate the spectrogram directly and still be able to generate an audio file from it.
 
 In order to capture style/genre we need a representation that captures such information. If we build a neural network based classifier to predict musical genre we can arrive at such a representation that clusters similar genres close together.
 
