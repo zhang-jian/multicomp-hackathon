@@ -5,16 +5,18 @@ import theano
 import numpy as np
 import os
 
-from tqdm import tqdm
+from tqdm import tqdm, trange
+from sklearn.externals import joblib
 
 floatX = theano.config.floatX
 GENRES = ["blues", "classical", "country", "disco",
           "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
+SR = 22050
 
 
 def load_audio_get_spectogram(audio_file, offset=0.0, duration=None):
     x, sr = librosa.load(audio_file, offset=offset,
-                         duration=duration, dtype=floatX)
+                         duration=duration, dtype=floatX, sr=SR)
     D = librosa.stft(x)
     S = np.log1p(np.abs(D)).astype(floatX)
     return S
@@ -38,4 +40,17 @@ def load_dataset(root_path, sample_len_secs, n_samples_per_file):
             Xs.extend(get_spectogram_samples(
                 audio_file, sample_len_secs, n_samples_per_file))
             ys.extend([i for _ in range(n_samples_per_file)])
-    return np.stack(Xs), np.stack(ys)
+    X, y = np.stack(Xs), np.stack(ys)
+    joblib.dump([X, y], os.path.join("processed_data", "xy_{}s_{}.pkl".format(sample_len_secs, n_samples_per_file)))
+    return X, y
+
+
+def convert_spectogram_and_save(S, output_file):
+    x = np.exp(S) - 1
+    p = 2 * np.pi * np.random.random_sample(x.shape) - np.pi
+    for i in trange(500, desc="Inverting spectogram", ncols=80):
+        Q = x * np.exp(1j*p)
+        y = librosa.istft(Q) + 1e-6
+        p = np.angle(librosa.stft(y))
+    librosa.output.write_wav(output_file, y, SR)
+
