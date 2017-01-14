@@ -4,15 +4,13 @@
 
 In our work we want to transfer the *style* of one piece of music to another. More specifically we want the newly generated music piece to have the *content* of the source piece but match the *style* of the target.
 
-While music style is really difficult to define and quantify, we narrow down our definition to style = genre. So for example if we have a classical piano piece as the source and a jazz piece as the target, the result should be piano jazz, while keeping the original content recognizeable. 
+While music style is really difficult to define and quantify, we narrow down our definition to style = genre. So for example if we have a classical piano piece as the source and a jazz piece as the target, the result should be piano jazz, while keeping the original content recognizable.
 
 This work is inspired by similar work on style transfer in images
 
-TODO sample image and a bit more explanation 
-
 ## Approach
 
-We believe that musical style and content can be captured by different representations of a musical piece. 
+We believe that musical style and content can be captured by different representations of a musical piece.
 
 For capturing content we choose to use spectrograms, an audio representation reliant on the Fourier Transform of the audio signal, and example of a spectrogram with an audio signal that resulted in it:
 ![Spectrogram example](http://oyro.no/fig/spektrum.png)
@@ -64,22 +62,24 @@ model = Sequential()
 
 Now we have our empty model, and we need to add our layers to the model one by one using `.add`.
 
-> fill in why we chose the architecture that we did
-
 ```python
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense
 
-model.add(Convolution2D(nb_filter=32, nb_row=1, nb_col=9,
+model.add(Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
                         activation='relu', border_mode='same',
-                        input_shape=(NUM_CHANNELS, 1, NUM_TIMEPOINTS)))
-model.add(MaxPooling2D(pool_size=(1, 2)))
+                        input_shape=(1, NUM_CHANNELS, NUM_TIMEPOINTS)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Convolution2D(nb_filter=32, nb_row=1, nb_col=9,
+model.add(Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
                         activation='relu', border_mode='same'))
-model.add(MaxPooling2D(pool_size=(1, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
 
+model.add(Dropout(0.5))
 model.add(Flatten())
+model.add(Dense(output_dim=100, activation='tanh', name='final_features'))
+model.add(Dropout(0.5))
 model.add(Dense(output_dim=NUM_GENRES, activation='softmax'))
+
 ```
 
 Finally, we need to configure the learning process of the model, using `.compile`. Here we choose to use the [Adam](https://arxiv.org/abs/1412.6980) optimizer (`optimizer='adam'`) and categorical cross-entropy loss function (`loss='categorical_crossentropy'`) because these options are considered to be the current state-of-the-art for this kind of problem. We would like to see the model accuracy after each batch, so we add `metrics=['accuracy']`.
