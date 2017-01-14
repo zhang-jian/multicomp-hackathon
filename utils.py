@@ -30,7 +30,7 @@ def get_spectrogram_samples(audio_file, sample_len_secs, n_samples):
                      for i in [np.random.randint(0, len(x) - sample_len_frames) for _ in range(n_samples)]]
     sample_Ds = [librosa.stft(s, n_fft=N_FFT) for s in sample_frames]
     sample_Ss = [np.log1p(np.abs(D)).astype(floatX) for D in sample_Ds]
-    sample_Ss = [S.reshape(S.shape[0], 1, S.shape[1]) for S in sample_Ss]
+    sample_Ss = [S.reshape(1, S.shape[0], S.shape[1]) for S in sample_Ss]
     return np.stack(sample_Ss)
 
 
