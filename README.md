@@ -10,6 +10,16 @@ This work is inspired by similar work on style transfer in images
 
 TODO sample image and a bit more explanation 
 
+## Approach
+
+We believe that musical style and content can be captured by different representations of a musical piece. 
+
+For capturing content we choose to use spectrograms, an audio representation reliant on the Fourier Transform of the audio signal, and example of a spectrogram: TODO
+
+Fortunately, for us it is also an "semi-invertible" operation which allows us to manipulate the spectrogram directly and still be able to generate an audio file from it.
+
+In order to capture style/genre we need a representation that captures such information. If we build a neural network based classifier to predict musical genre we can arrive at such a representation that clusters similar genres close together.
+
 ## Dataset
 
 As one of the building blocks of our approach we need a music genre classifier. In order to build it we use the common dataset for the task - [GTZAN Genre Collection](http://marsyasweb.appspot.com/download/data_sets/)
