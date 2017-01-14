@@ -10,7 +10,7 @@ import theano.tensor as T
 from utils import *
 
 
-def get_adam_updates(f, params, lr=1e-3, b1=0.9, b2=0.999, e=1e-8, dec=5e-3, norm_grads=False):
+def get_adam_updates(f, params, lr=1, b1=0.9, b2=0.999, e=1e-8, dec=0, norm_grads=False):
     """Generate updates to optimize using the Adam optimizer with linear learning rate decay."""
     t = theano.shared(0)
     ms = [theano.shared(np.zeros(param.shape.eval(),
@@ -33,14 +33,14 @@ def get_adam_updates(f, params, lr=1e-3, b1=0.9, b2=0.999, e=1e-8, dec=5e-3, nor
 
 NUM_SECONDS = 3
 NUM_SAMPLES = 5
-ARCH = 'img_c'
+ARCH = 'img_a'
 
 NUM_CHANNELS = 257
 NUM_TIMEPOINTS = 257
 NUM_GENRES = 10
 
 # OPTIMIZATION_ITERATIONS = 1
-OPTIMIZATION_ITERATIONS = 1000
+OPTIMIZATION_ITERATIONS = 3000
 
 LAMBDA = 1.
 
@@ -57,6 +57,12 @@ LAMBDA = args.lambdav
 MODEL_FN = 'models/{}s_{}_{}_model.h5'.format(NUM_SECONDS, NUM_SAMPLES, ARCH)
 print("Loading {}...".format(MODEL_FN))
 
+PCA_FN = 'features/{}s_{}_img_pca.pkl'.format(NUM_SECONDS, NUM_SAMPLES)
+pca, xbar = joblib.load(PCA_FN)
+
+pca = pca.astype('float32')
+xbar = xbar.astype('float32')
+
 # load content and style spectrogram
 input_content_S = load_audio_get_spectrogram(
     args.content, duration=NUM_SECONDS)
@@ -64,13 +70,17 @@ input_style_S = load_audio_get_spectrogram(
     args.style, duration=NUM_SECONDS)
 
 # initializing a blank spectrogram
-S_init = np.zeros((1, 1, NUM_CHANNELS, NUM_TIMEPOINTS), dtype='float32')
+S_init = np.random.normal(
+    size=(1, 2617), scale=10).astype('float32')
 # must be a shared variable because it needs to be mutable
 S = theano.shared(S_init)
 
+S_pca = xbar + T.dot(S, pca)
+S_pca = T.reshape(S_pca, (1, 1, 257, 257))
+
 # wrapper for spectrogram for use with keras
-input_S = Input(tensor=S, shape=(1, NUM_CHANNELS,
-                                 NUM_TIMEPOINTS), dtype='float32')
+input_S = Input(tensor=S_pca, shape=(1, NUM_CHANNELS,
+                                     NUM_TIMEPOINTS), dtype='float32')
 
 # apply each layer to the tensor
 z = Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
@@ -93,16 +103,20 @@ model = Model(input=input_S, output=output)
 model.load_weights(MODEL_FN)
 
 # building the loss function
-get_style_features = theano.function([], style_features_S)
-S.set_value(input_style_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS))
+get_style_features = theano.function([S_pca], style_features_S)
+# S.set_value(input_style_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS))
 
-input_style_features = get_style_features()
-S.set_value(S_init)
+input_style_features = get_style_features(
+    input_style_S.reshape(1, 1, 257, 257))
+# S.set_value(S_init)
+# S.set_value(load_audio_get_spectrogram(
+#     '/multicomp/datasets/GTZAN/metal/metal.00081.au', duration=NUM_SECONDS).reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS))
 
 style_loss = T.sum(T.square(style_features_S - input_style_features))
 content_loss = T.sum(
-    T.square(S - input_content_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS)))
-total_loss = content_loss + LAMBDA * style_loss
+    T.square(S_pca - input_content_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS)))
+# total_loss = content_loss + LAMBDA * style_loss
+total_loss = style_loss
 
 optim_step = theano.function(
     [], total_loss, updates=get_adam_updates(total_loss, [S]))
@@ -116,5 +130,12 @@ with tqdm(desc="Optimizing...", ncols=80, ascii=False,
             "Optimizing... (loss: {:0.4g})".format(current_loss))
         bar.update(1)
 
-output_S = np.clip(S.get_value()[0, 0, :, :], -50, 50)
+get_pcaS = theano.function([], S_pca)
+output_S = get_pcaS()
+
+output_S = np.clip(output_S[0, 0, :, :], -50, 50)
 convert_spectrogram_and_save(output_S, args.output)
+
+output_style_features = get_style_features(
+    output_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS))
+joblib.dump(output_style_features, args.output[:-4] + '.pkl')
