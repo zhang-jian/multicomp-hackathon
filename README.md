@@ -109,7 +109,10 @@ Using this method we were able to reach 64% accuracy on a 10-way music genre cla
 
 As input we used a `257 x 257` spectrogram 
 
-TODO the exact architecture
+Our architecture is as follows:
+![Spectrogram example](https://github.com/jayanthkoushik/multicomp-hackathon/blob/master/images/spect_cnn.png)
+
+Two convolutional and pooling layers followed by two fully connected ones.
 
 Using this method we were able to reach 72% accuracy on a 10-way music genre classification.
 
