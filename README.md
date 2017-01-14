@@ -6,9 +6,8 @@ In our work we want to transfer the *style* of one piece of music to another. Mo
 
 While music style is really difficult to define and quantify, we narrow down our definition to style = genre. So for example if we have a classical piano piece as the source and a jazz piece as the target, the result should be piano jazz, while keeping the original content recognizeable. 
 
-This work is inspired by similar work on style transfer in images
-
-TODO sample image and a bit more explanation 
+This work is inspired by similar work on style transfer in images, where we want to retain the *content* of a source image but match the style of a target one, examples of image style transfer is as follows (A is the source image, B, C, D are generated ones):
+![Image style transfer example](https://github.com/jayanthkoushik/multicomp-hackathon/blob/master/images/image_style_transfer.png)
 
 ## Approach
 
