@@ -4,9 +4,9 @@
 
 We generate spectograms with Short-time Fourier Transform (STFT) and processing it as `S = log(1 + |STFT(x)|)` where `x` is the signal and `S` is the spectogram. This gives us, essentially, the intensity of various frequencies at different time points. This is done with librosa as follows.
 ```python
-x, sr = librosa.load(audio_file)
-D = librosa.stft(x)
-S = np.log1p(np.abs(D))
+x, _ = librosa.load(audio_file)
+D = librosa.stft(x) # D is a complex matrix with the magnitude and phase of the fourier transform
+S = np.log1p(np.abs(D)) # Take the magnitude with abs (call it Z) and return log(1 + Z) as the spectogram
 ```
 
 To invert the spectograms, we use the [Griffin-Lim algorithm](http://cbcl.mit.edu/publications/ps/signalrec_ICSLP06.pdf) which iteratively estimates the phase information that was lost by taking magnitude for the spectogram.
