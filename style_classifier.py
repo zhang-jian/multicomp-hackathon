@@ -1,5 +1,4 @@
 import argparse
-import math
 import numpy as np
 import pickle
 
@@ -14,8 +13,8 @@ from utils import *
 NUM_SECONDS = 3
 NUM_SAMPLES = 5
 
-NUM_CHANNELS = 129
-NUM_TIMEPOINTS = 1034
+NUM_CHANNELS = 257
+NUM_TIMEPOINTS = 257
 NUM_GENRES = 10
 
 TEST_P = 0.2
@@ -23,12 +22,15 @@ TEST_P = 0.2
 parser = argparse.ArgumentParser()
 parser.add_argument('--seconds', type=int)
 parser.add_argument('--samples', type=int)
+parser.add_argument('--epochs', type=int)
 args = parser.parse_args()
 
 NUM_SECONDS = args.seconds
 NUM_SAMPLES = args.samples
 
-ARCH = 'img'
+NUM_EPOCHS = args.epochs
+
+ARCH = 'img_a'
 
 INPUT_FN = 'processed_data/xy_{}s_{}_img.pkl'.format(
     NUM_SECONDS, NUM_SAMPLES, ARCH)
@@ -55,14 +57,18 @@ y_test = y[int((1 - TEST_P) * len(y)):]
 
 model = Sequential()
 
-model.add(Convolution2D(nb_filter=16, nb_row=9, nb_col=9,
+model.add(Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
                         activation='relu', border_mode='same',
                         input_shape=(1, NUM_CHANNELS, NUM_TIMEPOINTS)))
-model.add(MaxPooling2D(pool_size=(1, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Convolution2D(nb_filter=16, nb_row=9, nb_col=9,
+model.add(Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
                         activation='relu', border_mode='same'))
-model.add(MaxPooling2D(pool_size=(1, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+# model.add(Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
+#                         activation='relu', border_mode='same'))
+# model.add(MaxPooling2D(pool_size=(4, 4)))
 
 model.add(Dropout(0.5))
 
@@ -81,7 +87,7 @@ model.summary()
 
 history = model.fit(x=x_train, y=to_categorical(y_train),
                     validation_data=(x_test, to_categorical(y_test)),
-                    batch_size=32, nb_epoch=50, verbose=1)
+                    batch_size=32, nb_epoch=NUM_EPOCHS, verbose=1)
 
 pred = model.predict_classes(x=x_test, batch_size=32, verbose=1)
 acc = np.mean(y_test == pred)

@@ -33,7 +33,10 @@ def get_adam_updates(f, params, lr=1e-3, b1=0.9, b2=0.999, e=1e-8, dec=5e-3, nor
 
 NUM_SECONDS = 3
 NUM_SAMPLES = 5
-NUM_CHANNELS = 1025
+ARCH = 'img_c'
+
+NUM_CHANNELS = 257
+NUM_TIMEPOINTS = 257
 NUM_GENRES = 10
 
 # OPTIMIZATION_ITERATIONS = 1
@@ -51,9 +54,8 @@ args = parser.parse_args()
 
 LAMBDA = args.lambdav
 
-MODEL_FN = 'models/{}s_{}_de_model.h5'.format(NUM_SECONDS, NUM_SAMPLES)
+MODEL_FN = 'models/{}s_{}_{}_model.h5'.format(NUM_SECONDS, NUM_SAMPLES, ARCH)
 print("Loading {}...".format(MODEL_FN))
-NUM_TIMEPOINTS = int(math.ceil(43.1 * NUM_SECONDS))
 
 # load content and style spectrogram
 input_content_S = load_audio_get_spectrogram(
@@ -62,22 +64,22 @@ input_style_S = load_audio_get_spectrogram(
     args.style, duration=NUM_SECONDS)
 
 # initializing a blank spectrogram
-S_init = np.zeros((1, NUM_CHANNELS, 1, NUM_TIMEPOINTS), dtype='float32')
+S_init = np.zeros((1, 1, NUM_CHANNELS, NUM_TIMEPOINTS), dtype='float32')
 # must be a shared variable because it needs to be mutable
 S = theano.shared(S_init)
 
 # wrapper for spectrogram for use with keras
-input_S = Input(tensor=S, shape=(NUM_CHANNELS, 1,
+input_S = Input(tensor=S, shape=(1, NUM_CHANNELS,
                                  NUM_TIMEPOINTS), dtype='float32')
 
 # apply each layer to the tensor
-z = Convolution2D(nb_filter=16, nb_row=1, nb_col=9,
+z = Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
                   activation='relu', border_mode='same')(input_S)
-z = MaxPooling2D(pool_size=(1, 2))(z)
+z = MaxPooling2D(pool_size=(2, 2))(z)
 
-z = Convolution2D(nb_filter=16, nb_row=1, nb_col=9,
+z = Convolution2D(nb_filter=16, nb_row=5, nb_col=5,
                   activation='relu', border_mode='same')(z)
-z = MaxPooling2D(pool_size=(1, 2))(z)
+z = MaxPooling2D(pool_size=(2, 2))(z)
 
 z = Flatten()(z)
 style_features_S = Dense(output_dim=100, activation='relu')(z)
@@ -92,14 +94,14 @@ model.load_weights(MODEL_FN)
 
 # building the loss function
 get_style_features = theano.function([], style_features_S)
-S.set_value(input_style_S.reshape(1, NUM_CHANNELS, 1, NUM_TIMEPOINTS))
+S.set_value(input_style_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS))
 
 input_style_features = get_style_features()
 S.set_value(S_init)
 
 style_loss = T.sum(T.square(style_features_S - input_style_features))
 content_loss = T.sum(
-    T.square(S - input_content_S.reshape(1, NUM_CHANNELS, 1, NUM_TIMEPOINTS)))
+    T.square(S - input_content_S.reshape(1, 1, NUM_CHANNELS, NUM_TIMEPOINTS)))
 total_loss = content_loss + LAMBDA * style_loss
 
 optim_step = theano.function(
@@ -114,5 +116,5 @@ with tqdm(desc="Optimizing...", ncols=80, ascii=False,
             "Optimizing... (loss: {:0.4g})".format(current_loss))
         bar.update(1)
 
-output_S = np.clip(S.get_value()[0, :, 0, :], -50, 50)
+output_S = np.clip(S.get_value()[0, 0, :, :], -50, 50)
 convert_spectrogram_and_save(output_S, args.output)
