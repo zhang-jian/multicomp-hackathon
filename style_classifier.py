@@ -52,12 +52,12 @@ y_test = y[int((1 - TEST_P) * len(y)):]
 
 model = Sequential()
 
-model.add(Convolution2D(nb_filter=32, nb_row=1, nb_col=9,
+model.add(Convolution2D(nb_filter=16, nb_row=1, nb_col=9,
                         activation='relu', border_mode='same',
                         input_shape=(NUM_CHANNELS, 1, NUM_TIMEPOINTS)))
 model.add(MaxPooling2D(pool_size=(1, 2)))
 
-model.add(Convolution2D(nb_filter=32, nb_row=1, nb_col=9,
+model.add(Convolution2D(nb_filter=16, nb_row=1, nb_col=9,
                         activation='relu', border_mode='same'))
 model.add(MaxPooling2D(pool_size=(1, 2)))
 
@@ -73,8 +73,6 @@ model.add(Dense(output_dim=NUM_GENRES, activation='softmax'))
 
 model.compile(optimizer='adam', loss='categorical_crossentropy',
               metrics=['accuracy'])
-
-# model.summary()
 
 history = model.fit(x=x_train, y=to_categorical(y_train),
                     validation_data=(x_test, to_categorical(y_test)),

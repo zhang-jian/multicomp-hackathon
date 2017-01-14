@@ -51,7 +51,7 @@ args = parser.parse_args()
 
 LAMBDA = args.lambdav
 
-MODEL_FN = 'models/{}s_{}_model.h5'.format(NUM_SECONDS, NUM_SAMPLES)
+MODEL_FN = 'models/{}s_{}_de_model.h5'.format(NUM_SECONDS, NUM_SAMPLES)
 print("Loading {}...".format(MODEL_FN))
 NUM_TIMEPOINTS = int(math.ceil(43.1 * NUM_SECONDS))
 
@@ -71,17 +71,16 @@ input_S = Input(tensor=S, shape=(NUM_CHANNELS, 1,
                                  NUM_TIMEPOINTS), dtype='float32')
 
 # apply each layer to the tensor
-z = Convolution2D(nb_filter=32, nb_row=1, nb_col=9,
+z = Convolution2D(nb_filter=16, nb_row=1, nb_col=9,
                   activation='relu', border_mode='same')(input_S)
 z = MaxPooling2D(pool_size=(1, 2))(z)
 
-z = Convolution2D(nb_filter=64, nb_row=1, nb_col=9,
+z = Convolution2D(nb_filter=16, nb_row=1, nb_col=9,
                   activation='relu', border_mode='same')(z)
 z = MaxPooling2D(pool_size=(1, 2))(z)
 
-# z = Dropout(0.5)(z)
-
-style_features_S = Flatten()(z)
+z = Flatten()(z)
+style_features_S = Dense(output_dim=100, activation='relu')(z)
 output = Dense(output_dim=NUM_GENRES,
                activation='softmax')(style_features_S)
 
