@@ -14,7 +14,7 @@ GENRES = ["blues", "classical", "country", "disco",
 SR = 22050
 
 
-def load_audio_get_spectogram(audio_file, offset=0.0, duration=None):
+def load_audio_get_spectrogram(audio_file, offset=0.0, duration=None):
     x, sr = librosa.load(audio_file, offset=offset,
                          duration=duration, dtype=floatX, sr=SR)
     D = librosa.stft(x)
@@ -22,7 +22,7 @@ def load_audio_get_spectogram(audio_file, offset=0.0, duration=None):
     return S
 
 
-def get_spectogram_samples(audio_file, sample_len_secs, n_samples):
+def get_spectrogram_samples(audio_file, sample_len_secs, n_samples):
     x, sr = librosa.load(audio_file, dtype=floatX)
     sample_len_frames = sr * sample_len_secs
     sample_frames = [x[i:i + sample_len_frames]
@@ -37,7 +37,7 @@ def load_dataset(root_path, sample_len_secs, n_samples_per_file):
     Xs, ys = [], []
     for i, genre in enumerate(GENRES):
         for audio_file in tqdm(list(glob(os.path.join(root_path, genre, "*.au"))), ncols=80, ascii=False, desc="Loading {} files".format(genre)):
-            Xs.extend(get_spectogram_samples(
+            Xs.extend(get_spectrogram_samples(
                 audio_file, sample_len_secs, n_samples_per_file))
             ys.extend([i for _ in range(n_samples_per_file)])
     X, y = np.stack(Xs), np.stack(ys)
@@ -45,10 +45,10 @@ def load_dataset(root_path, sample_len_secs, n_samples_per_file):
     return X, y
 
 
-def convert_spectogram_and_save(S, output_file):
+def convert_spectrogram_and_save(S, output_file):
     x = np.exp(S) - 1
     p = 2 * np.pi * np.random.random_sample(x.shape) - np.pi
-    for i in trange(500, desc="Inverting spectogram", ncols=80):
+    for i in trange(500, desc="Inverting spectrogram", ncols=80):
         Q = x * np.exp(1j*p)
         y = librosa.istft(Q) + 1e-6
         p = np.angle(librosa.stft(y))
