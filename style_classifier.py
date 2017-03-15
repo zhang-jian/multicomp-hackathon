@@ -74,7 +74,7 @@ model.add(Dropout(0.5))
 
 model.add(Flatten())
 
-model.add(Dense(output_dim=100, activation='relu', name='final_features'))
+model.add(Dense(output_dim=100, activation='tanh', name='final_features'))
 
 model.add(Dropout(0.5))
 
